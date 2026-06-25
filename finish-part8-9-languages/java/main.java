@@ -1,31 +1,43 @@
 import java.io.IOException;
 import java.io.OutputStream;
-import com.sun.net.httpserver.HttpServer;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpExchange;
-
 import java.net.InetSocketAddress;
 
-public class Main {
-    public static void main(String[] args) throws IOException {
-        HttpServer server = HttpServer.create(new InetSocketAddress(8080), 0);
+import com.sun.net.httpserver.HttpExchange;
+import com.sun.net.httpserver.HttpHandler;
+import com.sun.net.httpserver.HttpServer;
 
-        server.createContext("/", new MyHandler());
+public class Main {
+
+    public static void main(String[] args) throws Exception {
+
+        HttpServer server = HttpServer.create(
+            new InetSocketAddress(8080), 0);
+
+        server.createContext("/", new HttpHandler() {
+            @Override
+            public void handle(HttpExchange exchange)
+                    throws IOException {
+
+                String response = "Hello from Java Docker container!";
+
+                exchange.sendResponseHeaders(
+                    200,
+                    response.getBytes().length
+                );
+
+                OutputStream os =
+                    exchange.getResponseBody();
+
+                os.write(response.getBytes());
+                os.close();
+            }
+        });
 
         server.setExecutor(null);
         server.start();
 
-        System.out.println("Java server running on port 8080");
-    }
-
-    static class MyHandler implements HttpHandler {
-        public void handle(HttpExchange exchange) throws IOException {
-            String response = "Hello from Java Docker container!";
-            exchange.sendResponseHeaders(200, response.length());
-
-            OutputStream os = exchange.getResponseBody();
-            os.write(response.getBytes());
-            os.close();
-        }
+        System.out.println(
+            "Java server running on port 8080"
+        );
     }
 }

@@ -1,4 +1,4 @@
-FROM eclipse-temurin:17-jdk-alpine-
+FROM eclipse-temurin:17-jdk
 
 WORKDIR /app
 
@@ -8,4 +8,4 @@ RUN javac Main.java
 
 EXPOSE 8080
 
-CMD ["java", "Main"]
+CMD ["java","-cp","/app","Main"]
